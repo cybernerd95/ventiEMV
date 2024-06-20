@@ -1,13 +1,22 @@
 #include <VirtualWire.h>
 
 void setup() {
-  vw_set_tx_pin(12);  // Set the transmit pin to D12
-  vw_setup(2000);     // Bits per second
+  Serial.begin(9600);  // Initialize serial communication
+  vw_set_rx_pin(11);   // Set the receive pin to D11
+  vw_setup(2000);      // Bits per second
+  vw_rx_start();       // Start the receiver
 }
 
 void loop() {
-  const char *msg = "Hello";
-  vw_send((uint8_t *)msg, strlen(msg));
-  vw_wait_tx(); // Wait until the message is sent
-  delay(100);
+  uint8_t buf[VW_MAX_MESSAGE_LEN];
+  uint8_t buflen = VW_MAX_MESSAGE_LEN;
+
+  if (vw_get_message(buf, &buflen)) {
+    buf[buflen] = '\0'; // Null-terminate the string
+    Serial.print("Received: ");
+    Serial.println((int)buf);
+  }
+
+  // Optional: Add delay or other operations here
+  delay(100); // Adjust delay if necessary
 }
